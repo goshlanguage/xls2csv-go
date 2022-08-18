@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <malloc.h>
 #include <stdarg.h>
 
 #include <xls.h>
@@ -31,10 +30,10 @@ char *xls2csv(char *pstrXLSFile, int nSheetId)
   struct st_row_data *row = NULL;
   char *buf = NULL;
 
-  pWB = xls_open_file(pstrXLSFile, "utf-8");
+  pWB = xls_open(pstrXLSFile, "utf-8");
   if (pWB == NULL)
   {
-    printf("xls2csv() error: xls_open_file() failed.\n");
+    printf("xls2csv() error: xls_open() failed.\n");
     goto end;
   }
 
