@@ -5,7 +5,7 @@
 #include <malloc.h>
 #include <stdarg.h>
 
-#include <libxls/xls.h>
+#include <xls.h>
 #include "appendstr.h"
 
 // xls2csv reads XLS files and convert XLS data to CSV string.

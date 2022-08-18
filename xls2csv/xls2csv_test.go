@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/goshlanguage/xls2csv-go/xls2csv"
 	"github.com/northbright/pathhelper"
-	"github.com/northbright/xls2csv-go/xls2csv"
 )
 
 // Run "go test -c && ./xls2csv.test" to test.
