@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include <stdarg.h>
 
 #include "appendstr.h"
@@ -26,70 +25,80 @@
 //
 //       free(buf);
 //   }
-char *appendStr(char *buf, char *fmt, ...) {
-    int n, nBytes, l = 0;
-    char *newBuf, *tmpBuf = NULL;
-    va_list args1, args2;
-    char fixedBuf[64] = {0};
-    char *inputStr = fixedBuf;
+char *appendStr(char *buf, char *fmt, ...)
+{
+  int n, nBytes, l = 0;
+  char *newBuf, *tmpBuf = NULL;
+  va_list args1, args2;
+  char fixedBuf[64] = {0};
+  char *inputStr = fixedBuf;
 
-    va_start(args1, fmt);
-    va_copy(args2, args1);
+  va_start(args1, fmt);
+  va_copy(args2, args1);
 
-    // Get formated input string buffer.
-    // If n > 0 and n <= sizeof(fixedBuf), vsnprintf() succeeded,
-    // n = the size of formated string(not including '\0').    
-    n = vsnprintf(fixedBuf, sizeof(fixedBuf), fmt, args1);
+  // Get formated input string buffer.
+  // If n > 0 and n <= sizeof(fixedBuf), vsnprintf() succeeded,
+  // n = the size of formated string(not including '\0').
+  n = vsnprintf(fixedBuf, sizeof(fixedBuf), fmt, args1);
 
-    if (n < 0) {
-        printf("appendStr(): vsnprintf() return < 0: %d\n", n);
-        goto end;
+  if (n < 0)
+  {
+    printf("appendStr(): vsnprintf() return < 0: %d\n", n);
+    goto end;
+  }
+
+  // Fixed buffer is not large enough.
+  // n = the size of formated string(not including '\0').
+  // Use malloc() to allocate a new buffer to store formated input string.
+  if (n > sizeof(fixedBuf))
+  {
+    tmpBuf = malloc(sizeof(char) * (n + 1));
+    if (tmpBuf == NULL)
+    {
+      printf("appendStr() error: tmpBuf = malloc(%d) failed.\n", n + 1);
+      goto end;
     }
 
-    // Fixed buffer is not large enough.
-    // n = the size of formated string(not including '\0').
-    // Use malloc() to allocate a new buffer to store formated input string.
-    if (n > sizeof(fixedBuf)) {
-        tmpBuf = malloc(sizeof(char) * (n + 1));
-        if (tmpBuf == NULL) {
-            printf("appendStr() error: tmpBuf = malloc(%d) failed.\n", n + 1);
-            goto end;
-        }
-
-        nBytes = vsnprintf(tmpBuf, n + 1, fmt, args2);
-        if (nBytes != n) {
-            printf("appendStr() error: vsnprintf() nBytes(%d) != n(%d)\n", nBytes, n);
-            goto end;
-        }
-
-        // Make inputStr point to dynamic buffer.
-        inputStr = tmpBuf;
+    nBytes = vsnprintf(tmpBuf, n + 1, fmt, args2);
+    if (nBytes != n)
+    {
+      printf("appendStr() error: vsnprintf() nBytes(%d) != n(%d)\n", nBytes, n);
+      goto end;
     }
 
-    if (buf == NULL) {
-        l = 0;
-    } else {
-        l = strlen(buf);
-    }
+    // Make inputStr point to dynamic buffer.
+    inputStr = tmpBuf;
+  }
 
-    // Reallocate buffer to store new string.
-    newBuf = realloc(buf, l + n + 1);
-    if (newBuf == NULL) {
-        printf("appendStr() error: realloc() failed.\n");
-        goto end;
-    }
+  if (buf == NULL)
+  {
+    l = 0;
+  }
+  else
+  {
+    l = strlen(buf);
+  }
 
-    memcpy((void *)(newBuf + l), (void *)inputStr, n);
-    memset((void *)(newBuf + l + n), 0, 1);
+  // Reallocate buffer to store new string.
+  newBuf = realloc(buf, l + n + 1);
+  if (newBuf == NULL)
+  {
+    printf("appendStr() error: realloc() failed.\n");
+    goto end;
+  }
+
+  memcpy((void *)(newBuf + l), (void *)inputStr, n);
+  memset((void *)(newBuf + l + n), 0, 1);
 
 end:
-    if (tmpBuf != NULL) {
-        free(tmpBuf);
-        tmpBuf = NULL;
-    }
+  if (tmpBuf != NULL)
+  {
+    free(tmpBuf);
+    tmpBuf = NULL;
+  }
 
-    va_end(args1);
-    va_end(args2);
+  va_end(args1);
+  va_end(args2);
 
-    return newBuf;
+  return newBuf;
 }
